@@ -1690,6 +1690,12 @@ export class TaskOrchestrator {
       return runningTask;
     }
 
+    // Claim the task before doing any of the work below. getRunningTasks()
+    // above is a check-then-act: until this row exists, a sibling Nx process
+    // asking the same question is told the task is not running and starts a
+    // duplicate of it.
+    this.runningTasksService?.addRunningTask(task.id);
+
     const taskSpecificEnv = await this.processedTasks.get(task.id);
     await this.preRunSteps([task], { groupId });
 
@@ -1733,7 +1739,6 @@ export class TaskOrchestrator {
       temporaryOutputPath,
       pipeOutput
     );
-    this.runningTasksService?.addRunningTask(task.id);
     this.runningContinuousTasks.set(task.id, {
       runningTask: childProcess,
       groupId,
