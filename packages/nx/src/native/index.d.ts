@@ -1209,9 +1209,17 @@ export interface TaskGraph {
   roots: Array<string>
   /** Map of Task IDs to Tasks */
   tasks: Record<string, Task>
-  /** Map of Task IDs to IDs of tasks which the task depends on */
-  dependencies: Record<string, Array<string>>
-  continuousDependencies: Record<string, Array<string>>
+  /** Map of Task IDs to the edges to tasks which the task depends on */
+  dependencies: Record<string, Array<TaskGraphEdge>>
+  continuousDependencies: Record<string, Array<TaskGraphEdge>>
+}
+
+/** An edge from a task to one of the tasks it depends on */
+export interface TaskGraphEdge {
+  /** ID of the task depended on */
+  id: string
+  /** What the dependent waits for on a continuous dependency. Defaults to `started`. */
+  waitFor?: 'started' | 'ready'
 }
 
 /** Details about the composition of a task's hash */
@@ -1224,12 +1232,6 @@ export interface TaskHashDetails {
   implicitDeps?: Record<string, string>
   /** Hash of the runtime environment which the task was executed */
   runtime?: Record<string, string>
-}
-
-export declare const enum TaskReadiness {
-  Pending = 0,
-  Ready = 1,
-  Failed = 2
 }
 
 /**
@@ -1260,6 +1262,12 @@ export interface TaskOutputs {
    * disk.
    */
   files?: Array<OutputFile>
+}
+
+export declare const enum TaskReadiness {
+  Pending = 0,
+  Ready = 1,
+  Failed = 2
 }
 
 /**
